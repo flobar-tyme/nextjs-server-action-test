@@ -12,14 +12,12 @@ async function submitTestForm(formData: FormData) {
   }
 
   try {
-    // Get the base URL dynamically
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.NODE_ENV === "production"
-      ? "https://nextjs-server-action-test-no5h.vercel.app" // Replace with your actual domain
-      : "http://localhost:3000";
+    // Use environment variable for external API
+    const apiUrl = process.env.EXTERNAL_API_URL || "http://localhost:3000";
 
-    const response = await fetch(`${baseUrl}/api/test`, {
+    console.log("apiUrl :::", apiUrl);
+
+    const response = await fetch(`${apiUrl}/api/test`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,7 +29,9 @@ async function submitTestForm(formData: FormData) {
       const { uuid } = await response.json();
       redirect(`/contract/${uuid}`);
     } else {
-      throw new Error("Failed to submit form");
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(`API request failed: ${response.status}`);
     }
   } catch (error) {
     console.error("Error submitting form:", error);
