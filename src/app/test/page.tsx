@@ -12,16 +12,20 @@ async function submitTestForm(formData: FormData) {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/test`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ firstName }),
-      }
-    );
+    // Get the base URL dynamically
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NODE_ENV === "production"
+      ? "https://nextjs-server-action-test-no5h.vercel.app" // Replace with your actual domain
+      : "http://localhost:3000";
+
+    const response = await fetch(`${baseUrl}/api/test`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ firstName }),
+    });
 
     if (response.ok) {
       const { uuid } = await response.json();
